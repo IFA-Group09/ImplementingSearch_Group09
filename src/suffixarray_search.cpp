@@ -1,5 +1,9 @@
 #include <divsufsort.h>
+#include <iostream>
+#include <tuple>
 #include <sstream>
+#include <span>
+#include <seqan3/utility/views/slice.hpp>
 
 #include <seqan3/alphabet/nucleotide/dna5.hpp>
 #include <seqan3/argument_parser/all.hpp>
@@ -7,6 +11,45 @@
 #include <seqan3/io/sequence_file/all.hpp>
 #include <seqan3/search/fm_index/fm_index.hpp>
 #include <seqan3/search/search.hpp>
+#include <seqan3/alphabet/views/char_to.hpp>
+
+std::tuple<int, int> naive_binary_search(std::vector<seqan3::dna5>* query, std::vector<seqan3::dna5>* reference, std::vector<saidx_t>* sa) {
+	unsigned long int min_index = 0;
+	unsigned long int max_index = sa->size();
+
+	while (min_index < max_index) {
+		auto c = (min_index + max_index) / 2;
+
+		auto ref_view = *reference | std::views::drop(sa->at(c)) | seqan3::views::to_char;
+		auto query_view = *query | seqan3::views::to_char;
+		if (std::ranges::lexicographical_compare(ref_view, query_view)) {
+			min_index = c + 1;
+		} else {
+			max_index = c;
+		}
+		
+	}
+
+	auto first = min_index;
+	min_index = 0;
+	max_index = sa->size();
+	while (min_index < max_index) {
+		auto c = (min_index + max_index) / 2;
+		auto ref_view = *reference | std::views::drop(sa->at(c)) | seqan3::views::to_char;
+		auto query_view = *query | seqan3::views::to_char;
+		if (std::ranges::lexicographical_compare(query_view, ref_view)) {
+			max_index = c;
+		} else {
+			min_index = c + 1;
+		}
+	}
+	auto last = max_index;
+	if ((first > last) || !(std::equal(reference->begin()+sa->at(first), reference->begin()+sa->at(first)+query->size(), query->begin()))) {
+		return std::make_tuple(-1, -1);
+	}
+
+	return std::make_tuple(first, last);
+}
 
 int main(int argc, char const* const* argv) {
     seqan3::argument_parser parser{"suffixarray_search", argc, argv, seqan3::update_notifications::off};
@@ -67,10 +110,18 @@ int main(int argc, char const* const* argv) {
     //      To make the `reference` compatible with libdivsufsort you can simply
     //      cast it by calling:
     //      `sauchar_t const* str = reinterpret_cast<sauchar_t const*>(reference.data());`
+    sauchar_t const* str = reinterpret_cast<sauchar_t const*>(reference.data());
 
+    divsufsort((unsigned char *)str, &suffixarray[0], reference.size());
     for (auto& q : queries) {
         //!TODO !ImplementMe apply binary search and find q  in reference using binary search on `suffixarray`
         // You can choose if you want to use binary search based on "naive approach", "mlr-trick", "lcp"
+	auto results = naive_binary_search(&q, &reference, &suffixarray);
+	if (std::get<0>(results) >= 0) {
+		for (auto i = 0; i < std::get<1>(results)-std::get<0>(results)+1; i++) {
+			seqan3::debug_stream  << q << "\n";
+		}
+	}
     }
 
     return 0;
