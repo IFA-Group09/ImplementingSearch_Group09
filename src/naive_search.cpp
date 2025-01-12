@@ -1,4 +1,6 @@
 #include <sstream>
+#include <fstream>
+#include <chrono>
 
 #include <seqan3/alphabet/nucleotide/dna5.hpp>
 #include <seqan3/argument_parser/all.hpp>
@@ -67,10 +69,27 @@ int main(int argc, char const* const* argv) {
     }
     queries.resize(number_of_queries); // will reduce the amount of searches
 
+    // setup benchmarking output file
+    std::ifstream benchmark_in;
+    std::ofstream benchmark_f;
+    benchmark_f.open("cpp_benchmark.csv", std::ios_base::app);
+
+    benchmark_in.open("cpp_benchmark.csv");
+    if (benchmark_in.peek() == std::ifstream::traits_type::eof()) {
+	benchmark_f << "method,reads_file,time,read_n\n";
+    }
+
     //! search for all occurences of queries inside of reference
+    const auto start_time = std::chrono::system_clock::now();
     for (auto& r : reference) {
+	int read_num = 0;
         for (auto& q : queries) {
             findOccurences(r, q);
+	    if (read_num % 10 == 0) {
+		    benchmark_f << "naive," << query_file << "," << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start_time).count() << "," << read_num << std::endl;
+	    }
+	    read_num++;
+
         }
     }
 
