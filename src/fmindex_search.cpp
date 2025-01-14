@@ -14,7 +14,7 @@ int main(int argc, char const* const* argv) {
     parser.info.version = "1.0.0";
 
     auto index_path = std::filesystem::path{};
-    parser.add_option(index_path, '\0', "index", "path to the query file");
+    parser.add_option(index_path, '\0', "index", "path to the index file");
 
     auto query_file = std::filesystem::path{};
     parser.add_option(query_file, '\0', "query", "path to the query file");
@@ -60,8 +60,9 @@ int main(int argc, char const* const* argv) {
     }
     queries.resize(number_of_queries); // will reduce the amount of searches
 
-    //!TODO !ImplementMe use the seqan3::search function to search
     seqan3::configuration const cfg = seqan3::search_cfg::max_error_total{seqan3::search_cfg::error_count{number_of_errors}};
-
+    auto results = seqan3::search(queries, index, cfg);
+    for (auto && result : results)
+	    seqan3::debug_stream << result << "\n";
     return 0;
 }
