@@ -34,7 +34,7 @@ do
 done
 
 # remove any existing benchmark file
-rm cpp_benchmark.cpp
+rm cpp_benchmark.csv
 
 # Now collect processing per read num
 ./build/bin/naive_search --query $READS_FILE --reference $REFERENCE_FILE --query_ct 1011 
