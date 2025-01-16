@@ -4,6 +4,9 @@ cmake_minimum_required (VERSION 3.8)
 # You can add more external include paths of other projects that are needed for your project.
 add_library ("${PROJECT_NAME}_interface" INTERFACE)
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
+
+add_library (benchmark benchmark.cpp)
+target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE benchmark)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
