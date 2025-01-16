@@ -39,4 +39,12 @@ rm cpp_benchmark.cpp
 # Now collect processing per read num
 ./build/bin/naive_search --query $READS_FILE --reference $REFERENCE_FILE --query_ct 1011 
 ./build/bin/suffixarray_search --query $READS_FILE --reference $REFERENCE_FILE --query_ct 1000011
-./build/bin/fmindex_search --query $READS_FILE --index $FMINDEX_FILE --query_ct 1000011
+
+# benchmark does not work well per read with seqan3 api used in fmindex_search
+# so manually loop over a bunch of read_num so we can still get something we can
+# plot later
+
+for i in `seq 100 1000100 100`
+do
+	./build/bin/fmindex_search --query $READS_FILE --index $FMINDEX_FILE --query_ct $i
+done
