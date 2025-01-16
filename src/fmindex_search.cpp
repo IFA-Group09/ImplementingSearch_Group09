@@ -1,3 +1,5 @@
+#include "benchmark.hpp"
+
 #include <sstream>
 
 #include <seqan3/alphabet/nucleotide/dna5.hpp>
@@ -61,10 +63,10 @@ int main(int argc, char const* const* argv) {
     queries.resize(number_of_queries); // will reduce the amount of searches
 
     seqan3::configuration const cfg = seqan3::search_cfg::max_error_total{seqan3::search_cfg::error_count{number_of_errors}};
-    auto benchmark = Benchmark("fm_index", reference_file, query_file);
+    auto benchmark = Benchmark("fm_index", index_path, query_file);
     auto results = seqan3::search(queries, index, cfg);
     for (auto && result : results)
 	    seqan3::debug_stream << result << "\n";
-    benchmark.write(queries.size())
+    benchmark.write(queries.size());
     return 0;
 }
