@@ -1,3 +1,5 @@
+#include "benchmark.hpp"
+
 #include <divsufsort.h>
 #include <iostream>
 #include <tuple>
@@ -18,32 +20,31 @@ std::tuple<int, int> naive_binary_search(std::vector<seqan3::dna5>* query, std::
 	unsigned long int max_index = sa->size();
 
 	while (min_index < max_index) {
-		auto c = (min_index + max_index) / 2;
-
-		auto ref_view = *reference | std::views::drop(sa->at(c)) | seqan3::views::to_char;
+		auto c = (min_index + max_index)/2;
+		auto ref_view = *reference | std::views::drop(sa->at(c)) | std::views::take(query->size()) | seqan3::views::to_char;
 		auto query_view = *query | seqan3::views::to_char;
 		if (std::ranges::lexicographical_compare(ref_view, query_view)) {
 			min_index = c + 1;
 		} else {
 			max_index = c;
 		}
-		
 	}
 
 	auto first = min_index;
-	min_index = 0;
 	max_index = sa->size();
+
 	while (min_index < max_index) {
-		auto c = (min_index + max_index) / 2;
-		auto ref_view = *reference | std::views::drop(sa->at(c)) | seqan3::views::to_char;
+		auto c = (min_index + max_index)/2;
+		auto ref_view = *reference | std::views::drop(sa->at(c)) | std::views::take(query->size()) | seqan3::views::to_char;
 		auto query_view = *query | seqan3::views::to_char;
+
 		if (std::ranges::lexicographical_compare(query_view, ref_view)) {
 			max_index = c;
 		} else {
 			min_index = c + 1;
 		}
 	}
-	auto last = max_index;
+	auto last = max_index-1;
 	if ((first > last) || !(std::equal(reference->begin()+sa->at(first), reference->begin()+sa->at(first)+query->size(), query->begin()))) {
 		return std::make_tuple(-1, -1);
 	}
@@ -114,17 +115,8 @@ int main(int argc, char const* const* argv) {
 
     divsufsort((unsigned char *)str, &suffixarray[0], reference.size());
 
-    // setup benchmarking output file
-    std::ifstream benchmark_in;
-    std::ofstream benchmark_f;
-    benchmark_f.open("cpp_benchmark.csv", std::ios_base::app);
-
-    benchmark_in.open("cpp_benchmark.csv");
-    if (benchmark_in.peek() == std::ifstream::traits_type::eof()) {
-	benchmark_f << "method,reads_file,time,read_n\n";
-    }
-    const auto start_time = std::chrono::system_clock::now();
     int read_num = 0;
+    auto benchmark = Benchmark("sa", reference_file, query_file);
     for (auto& q : queries) {
         //!TODO !ImplementMe apply binary search and find q  in reference using binary search on `suffixarray`
         // You can choose if you want to use binary search based on "naive approach", "mlr-trick", "lcp"
@@ -136,7 +128,7 @@ int main(int argc, char const* const* argv) {
 	}
 
 	if (read_num % 10 == 0) {
-		benchmark_f << "sa," << query_file << "," << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start_time).count() << "," << read_num << std::endl;
+		benchmark.write(read_num);
 	}
 	read_num++;
     }
