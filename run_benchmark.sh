@@ -44,7 +44,7 @@ rm cpp_benchmark.cpp
 # so manually loop over a bunch of read_num so we can still get something we can
 # plot later
 
-for i in `seq 100 1000100 100`
+for i in {100..1000100..100}
 do
 	./build/bin/fmindex_search --query $READS_FILE --index $FMINDEX_FILE --query_ct $i
 done
