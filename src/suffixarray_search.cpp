@@ -18,32 +18,31 @@ std::tuple<int, int> naive_binary_search(std::vector<seqan3::dna5>* query, std::
 	unsigned long int max_index = sa->size();
 
 	while (min_index < max_index) {
-		auto c = (min_index + max_index) / 2;
-
-		auto ref_view = *reference | std::views::drop(sa->at(c)) | seqan3::views::to_char;
+		auto c = (min_index + max_index)/2;
+		auto ref_view = *reference | std::views::drop(sa->at(c)) | std::views::take(query->size()) | seqan3::views::to_char;
 		auto query_view = *query | seqan3::views::to_char;
 		if (std::ranges::lexicographical_compare(ref_view, query_view)) {
 			min_index = c + 1;
 		} else {
 			max_index = c;
 		}
-		
 	}
 
 	auto first = min_index;
-	min_index = 0;
 	max_index = sa->size();
+
 	while (min_index < max_index) {
-		auto c = (min_index + max_index) / 2;
-		auto ref_view = *reference | std::views::drop(sa->at(c)) | seqan3::views::to_char;
+		auto c = (min_index + max_index)/2;
+		auto ref_view = *reference | std::views::drop(sa->at(c)) | std::views::take(query->size()) | seqan3::views::to_char;
 		auto query_view = *query | seqan3::views::to_char;
+
 		if (std::ranges::lexicographical_compare(query_view, ref_view)) {
 			max_index = c;
 		} else {
 			min_index = c + 1;
 		}
 	}
-	auto last = max_index;
+	auto last = max_index-1;
 	if ((first > last) || !(std::equal(reference->begin()+sa->at(first), reference->begin()+sa->at(first)+query->size(), query->begin()))) {
 		return std::make_tuple(-1, -1);
 	}
