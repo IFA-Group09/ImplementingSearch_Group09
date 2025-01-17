@@ -5,6 +5,11 @@ cmake_minimum_required (VERSION 3.8)
 add_library ("${PROJECT_NAME}_interface" INTERFACE)
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
 
+target_link_libraries("${PROJECT_NAME}_interface" INTERFACE
+    fmindex-collection::fmindex-collection
+    cereal::cereal
+)
+
 add_library (benchmark benchmark.cpp)
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE benchmark)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)

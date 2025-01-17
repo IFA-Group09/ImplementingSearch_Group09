@@ -1,6 +1,7 @@
 #include "benchmark.hpp"
 
 #include <divsufsort.h>
+#include <fmindex-collection/fmindex-collection.h>
 #include <iostream>
 #include <tuple>
 #include <sstream>
@@ -15,7 +16,7 @@
 #include <seqan3/search/search.hpp>
 #include <seqan3/alphabet/views/char_to.hpp>
 
-std::tuple<int, int> naive_binary_search(std::vector<seqan3::dna5>* query, std::vector<seqan3::dna5>* reference, std::vector<saidx_t>* sa) {
+std::tuple<int, int> naive_binary_search(std::vector<seqan3::dna5>* query, std::vector<seqan3::dna5>* reference, std::vector<long unsigned int>* sa) {
 	unsigned long int min_index = 0;
 	unsigned long int max_index = sa->size();
 
@@ -101,20 +102,7 @@ int main(int argc, char const* const* argv) {
     }
     queries.resize(number_of_queries); // will reduce the amount of searches
 
-    // Array that should hold the future suffix array
-    std::vector<saidx_t> suffixarray;
-    suffixarray.resize(reference.size()); // resizing the array, so it can hold the complete SA
-
-    //!TODO !ImplementMe implement suffix array sort
-    //Hint, if can use libdivsufsort (already integrated in this repo)
-    //      https://github.com/y-256/libdivsufsort
-    //      To make the `reference` compatible with libdivsufsort you can simply
-    //      cast it by calling:
-    //      `sauchar_t const* str = reinterpret_cast<sauchar_t const*>(reference.data());`
-    sauchar_t const* str = reinterpret_cast<sauchar_t const*>(reference.data());
-
-    divsufsort((unsigned char *)str, &suffixarray[0], reference.size());
-
+    auto suffixarray = fmindex_collection::createSA64(std::span{reinterpret_cast<uint8_t const*>(reference.data()), reference.size()}, 1);
     int read_num = 0;
     auto benchmark = Benchmark("sa", reference_file, query_file);
     for (auto& q : queries) {
