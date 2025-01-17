@@ -12,9 +12,10 @@ class Benchmark {
 		std::filesystem::path query_path;
 		std::ofstream benchmark_out;
 		const std::chrono::time_point<std::chrono::system_clock> start_time = std::chrono::system_clock::now();
+		int number_of_errors;
 	
 	public:
-		Benchmark(std::string method, std::filesystem::path reference_path, std::filesystem::path query_path);
+		Benchmark(std::string method, std::filesystem::path reference_path, std::filesystem::path query_path, int number_of_errors);
 		void write(int read_num);
 };
 

@@ -104,7 +104,7 @@ int main(int argc, char const* const* argv) {
 
     auto suffixarray = fmindex_collection::createSA64(std::span{reinterpret_cast<uint8_t const*>(reference.data()), reference.size()}, 1);
     int read_num = 0;
-    auto benchmark = Benchmark("sa", reference_file, query_file);
+    auto benchmark = Benchmark("sa", reference_file, query_file, 0);
     for (auto& q : queries) {
         //!TODO !ImplementMe apply binary search and find q  in reference using binary search on `suffixarray`
         // You can choose if you want to use binary search based on "naive approach", "mlr-trick", "lcp"
