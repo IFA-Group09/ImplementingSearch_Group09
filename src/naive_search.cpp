@@ -71,7 +71,7 @@ int main(int argc, char const* const* argv) {
     }
     queries.resize(number_of_queries); // will reduce the amount of searches
 
-    auto benchmark = Benchmark("naive", reference_file, query_file);
+    auto benchmark = Benchmark("naive", reference_file, query_file, 0);
     //! search for all occurences of queries inside of reference
     for (auto& r : reference) {
 	int read_num = 0;
