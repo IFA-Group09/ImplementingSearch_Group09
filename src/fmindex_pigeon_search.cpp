@@ -11,6 +11,8 @@
 #include <seqan3/search/fm_index/fm_index.hpp>
 #include <seqan3/search/search.hpp>
 
+#include "benchmark.hpp"
+
 struct match_hash { 
   size_t operator()(const std::tuple<int, int, int> &val) const { 
     return std::get<0>(val) ^ std::get<1>(val) ^ std::get<2>(val); 
@@ -96,7 +98,8 @@ int main(int argc, char const* const* argv) {
 
     seqan3::configuration const cfg = seqan3::search_cfg::max_error_total{seqan3::search_cfg::error_count{0}};
 
-
+    auto benchmark = Benchmark("fmindex_pigeon", reference_file, query_file, 0);
+    int read_num = 0;
     for (auto& query : queries) {
 	std::unordered_set<std::tuple<int, int, int>, match_hash> match_results;
 	int piece_size = query.size()/(number_of_errors+1);
@@ -153,6 +156,11 @@ int main(int argc, char const* const* argv) {
 			}
 		}
 	}
+
+	if (read_num % 10 == 0) {
+		benchmark.write(read_num);
+	}
+	read_num++;
 
     }
 

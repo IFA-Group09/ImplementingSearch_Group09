@@ -2,7 +2,6 @@
 
 #include <sstream>
 #include <fstream>
-#include <chrono>
 
 #include <seqan3/alphabet/nucleotide/dna5.hpp>
 #include <seqan3/argument_parser/all.hpp>
