@@ -54,6 +54,9 @@ int main(int argc, char const* const* argv) {
     auto number_of_errors = uint8_t{0};
     parser.add_option(number_of_errors, '\0', "errors", "number of allowed hamming distance errors");
 
+    auto quiet = false;
+    parser.add_option(quiet, '\0', "quiet", "do not print matches");
+
     try {
          parser.parse();
     } catch (seqan3::argument_parser_error const& ext) {
@@ -148,11 +151,13 @@ int main(int argc, char const* const* argv) {
 		}
 
 		if (matched_pieces == pieces.size()-1) {
-			seqan3::debug_stream << "exact match for '" << query << "' at position: " << match_position << "\n";
+			if (!quiet)
+				seqan3::debug_stream << "exact match for '" << query << "' at position: " << match_position << "\n";
 		} else if (matched_pieces == pieces.size()-2) {
 			//seqan3::debug_stream << "Verifying partial match\n";
 			if (verify(reference[reference_id], query, (match_position-((piece_size*piece_id)+first_offset)), number_of_errors)) {
-				seqan3::debug_stream << "partial match for '" << query << "' found at position: " << match_position-(piece_size*piece_id) << "\n";
+				if (!quiet)
+					seqan3::debug_stream << "partial match for '" << query << "' found at position: " << match_position-(piece_size*piece_id) << "\n";
 			}
 		}
 	}

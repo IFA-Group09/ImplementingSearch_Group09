@@ -27,6 +27,9 @@ int main(int argc, char const* const* argv) {
     auto number_of_errors = uint8_t{0};
     parser.add_option(number_of_errors, '\0', "errors", "number of allowed hamming distance errors");
 
+    auto quiet = false;
+    parser.add_option(quiet, '\0', "quiet", "do not print matches");
+
     try {
          parser.parse();
     } catch (seqan3::argument_parser_error const& ext) {
@@ -66,7 +69,8 @@ int main(int argc, char const* const* argv) {
     auto benchmark = Benchmark("fm_index", index_path, query_file, number_of_errors);
     auto results = seqan3::search(queries, index, cfg);
     for (auto && result : results)
-	    seqan3::debug_stream << result << "\n";
+	    if (!quiet)
+	    	seqan3::debug_stream << result << "\n";
     benchmark.write(queries.size());
     return 0;
 }
