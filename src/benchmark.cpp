@@ -18,5 +18,5 @@ Benchmark::Benchmark(std::string method, std::filesystem::path reference_path, s
 }
 
 void Benchmark::write(int read_num) {
-	benchmark_out << method << "," << number_of_errors << "," << reference_path << "," << query_path << "," << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - this->start_time).count() << "," << read_num << std::endl;
+	benchmark_out << method << "," << number_of_errors << "," << reference_path << "," << query_path << "," << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - this->start_time).count() << "," << read_num << std::endl;
 }

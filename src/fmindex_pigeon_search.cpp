@@ -11,6 +11,8 @@
 #include <seqan3/search/fm_index/fm_index.hpp>
 #include <seqan3/search/search.hpp>
 
+#include "benchmark.hpp"
+
 struct match_hash { 
   size_t operator()(const std::tuple<int, int, int> &val) const { 
     return std::get<0>(val) ^ std::get<1>(val) ^ std::get<2>(val); 
@@ -51,6 +53,9 @@ int main(int argc, char const* const* argv) {
 
     auto number_of_errors = uint8_t{0};
     parser.add_option(number_of_errors, '\0', "errors", "number of allowed hamming distance errors");
+
+    auto quiet = false;
+    parser.add_option(quiet, '\0', "quiet", "do not print matches");
 
     try {
          parser.parse();
@@ -96,7 +101,8 @@ int main(int argc, char const* const* argv) {
 
     seqan3::configuration const cfg = seqan3::search_cfg::max_error_total{seqan3::search_cfg::error_count{0}};
 
-
+    auto benchmark = Benchmark("fmindex_pigeon", reference_file, query_file, 0);
+    int read_num = 0;
     for (auto& query : queries) {
 	std::unordered_set<std::tuple<int, int, int>, match_hash> match_results;
 	int piece_size = query.size()/(number_of_errors+1);
@@ -145,14 +151,21 @@ int main(int argc, char const* const* argv) {
 		}
 
 		if (matched_pieces == pieces.size()-1) {
-			seqan3::debug_stream << "exact match for '" << query << "' at position: " << match_position << "\n";
+			if (!quiet)
+				seqan3::debug_stream << "exact match for '" << query << "' at position: " << match_position << "\n";
 		} else if (matched_pieces == pieces.size()-2) {
 			//seqan3::debug_stream << "Verifying partial match\n";
 			if (verify(reference[reference_id], query, (match_position-((piece_size*piece_id)+first_offset)), number_of_errors)) {
-				seqan3::debug_stream << "partial match for '" << query << "' found at position: " << match_position-(piece_size*piece_id) << "\n";
+				if (!quiet)
+					seqan3::debug_stream << "partial match for '" << query << "' found at position: " << match_position-(piece_size*piece_id) << "\n";
 			}
 		}
 	}
+
+	if (read_num % 10 == 0) {
+		benchmark.write(read_num);
+	}
+	read_num++;
 
     }
 

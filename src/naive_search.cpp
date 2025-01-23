@@ -2,7 +2,6 @@
 
 #include <sstream>
 #include <fstream>
-#include <chrono>
 
 #include <seqan3/alphabet/nucleotide/dna5.hpp>
 #include <seqan3/argument_parser/all.hpp>
@@ -12,13 +11,13 @@
 #include <seqan3/search/search.hpp>
 
 // prints out all occurences of query inside of ref
-void findOccurences(std::vector<seqan3::dna5> const& ref, std::vector<seqan3::dna5> const& query) {
+void findOccurences(std::vector<seqan3::dna5> const& ref, std::vector<seqan3::dna5> const& query, bool quiet) {
     for (long unsigned int i = 0; i <= ref.size()-query.size(); i++) {
 	    for (long unsigned int j = 0; j <= query.size(); j++) {
 		if (ref[i+j] != query[j])
 			break;
 
-		if (j == query.size()-1)
+		if ((j == query.size()-1) && !(quiet))
 			seqan3::debug_stream << query << "\n";
 	    }
     }
@@ -38,6 +37,9 @@ int main(int argc, char const* const* argv) {
 
     auto number_of_queries = size_t{100};
     parser.add_option(number_of_queries, '\0', "query_ct", "number of query, if not enough queries, these will be duplicated");
+
+    auto quiet = false;
+    parser.add_option(quiet, '\0', "quiet", "do not print matches");
 
     try {
          parser.parse();
@@ -76,7 +78,7 @@ int main(int argc, char const* const* argv) {
     for (auto& r : reference) {
 	int read_num = 0;
         for (auto& q : queries) {
-            findOccurences(r, q);
+            findOccurences(r, q, quiet);
 	    if (read_num % 10 == 0) {
 		    benchmark.write(read_num);
 	    }

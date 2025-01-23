@@ -1,6 +1,5 @@
 #include "benchmark.hpp"
 
-#include <divsufsort.h>
 #include <fmindex-collection/fmindex-collection.h>
 #include <iostream>
 #include <tuple>
@@ -68,6 +67,9 @@ int main(int argc, char const* const* argv) {
     auto number_of_queries = size_t{100};
     parser.add_option(number_of_queries, '\0', "query_ct", "number of query, if not enough queries, these will be duplicated");
 
+    auto quiet = false;
+    parser.add_option(quiet, '\0', "quiet", "do not print matches");
+
     try {
          parser.parse();
     } catch (seqan3::argument_parser_error const& ext) {
@@ -111,7 +113,8 @@ int main(int argc, char const* const* argv) {
 	auto results = naive_binary_search(&q, &reference, &suffixarray);
 	if (std::get<0>(results) >= 0) {
 		for (auto i = 0; i < std::get<1>(results)-std::get<0>(results)+1; i++) {
-			seqan3::debug_stream  << q << "\n";
+			if (!quiet)
+				seqan3::debug_stream  << q << "\n";
 		}
 	}
 
