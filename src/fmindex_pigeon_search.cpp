@@ -102,6 +102,7 @@ int main(int argc, char const* const* argv) {
     seqan3::configuration const cfg = seqan3::search_cfg::max_error_total{seqan3::search_cfg::error_count{0}};
 
     auto benchmark = Benchmark("fmindex_pigeon", reference_file, query_file, number_of_errors);
+
     int read_num = 0;
     for (auto& query : queries) {
 	std::unordered_set<std::tuple<int, int, int>, match_hash> match_results;
