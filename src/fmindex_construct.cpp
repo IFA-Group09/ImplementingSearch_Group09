@@ -1,3 +1,4 @@
+#include "benchmark.hpp"
 #include <sstream>
 
 #include <seqan3/alphabet/nucleotide/dna5.hpp>
@@ -34,10 +35,10 @@ int main(int argc, char const* const* argv) {
     for (auto& record : reference_stream) {
         reference.push_back(record.sequence());
     }
-
+    auto benchmark = Benchmark("fmindex_construct", reference_file, "", 0);
     // Our index is of type `Index`
     seqan3::fm_index index{reference}; // construct fm-index
-
+    benchmark.write(0);
     // saving the fmindex to storage
     {
         seqan3::debug_stream << "Saving 2FM-Index ... " << std::flush;
