@@ -103,8 +103,9 @@ int main(int argc, char const* const* argv) {
         std::copy_n(queries.begin(), old_count, queries.begin() + old_count);
     }
     queries.resize(number_of_queries); // will reduce the amount of searches
-
+    auto construct_benchmark = Benchmark("sa_construct", reference_file, "", 0);
     auto suffixarray = fmindex_collection::createSA64(std::span{reinterpret_cast<uint8_t const*>(reference.data()), reference.size()}, 1);
+    construct_benchmark.write(0);
     int read_num = 0;
     auto benchmark = Benchmark("sa", reference_file, query_file, 0);
     for (auto& q : queries) {
